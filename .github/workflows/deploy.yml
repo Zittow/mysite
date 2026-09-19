@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "0 5 * * *" # daily, so newly tagged projects appear on their own
   workflow_dispatch:
 
 permissions:
@@ -14,30 +14,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Rust Dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: ". -> target"
+      - uses: Swatinem/rust-cache@v2
 
-      # Match the runner default Node version
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      # Strictly runs in the root folder where Cargo.toml lives
-      - name: Generate the site (Rust SSG)
+      - name: Generate the site
         run: cargo run --release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Strictly deploys using the root wrangler.jsonc configuration
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
