@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 5 * * *" # Runs daily at 5:00 AM UTC
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 permissions:
@@ -25,17 +25,19 @@ jobs:
         with:
           workspaces: ". -> target"
 
-      # Updated Node version to 24 to align with current GitHub runner standards
+      # Match the runner default Node version
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
+      # Strictly runs in the root folder where Cargo.toml lives
       - name: Generate the site (Rust SSG)
         run: cargo run --release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Strictly deploys using the root wrangler.jsonc configuration
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
