@@ -1,5 +1,5 @@
 {
-  "name": "YOUR_PROJECT_NAME",
+  "name": "mysite",
   "compatibility_date": "2026-09-19",
   "assets": {
     "directory": "./dist"
