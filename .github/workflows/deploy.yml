@@ -23,26 +23,22 @@ jobs:
       - name: Cache Rust Dependencies
         uses: Swatinem/rust-cache@v2
         with:
-          # Targets the cache specifically to your subfolder
-          workspaces: "mysite -> target"
+          workspaces: ". -> target"
 
-      # Setup Node so Wrangler Action can execute safely
+      # Updated Node version to 24 to align with current GitHub runner standards
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Generate the site (Rust SSG)
         run: cargo run --release
-        working-directory: ./mysite
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Deploy the static output to Cloudflare
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: ./mysite
           command: deploy
