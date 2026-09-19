@@ -1,0 +1,9 @@
+[package]
+name = "portfolio"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# Blocking HTTP client; rustls is the default TLS backend, so nothing extra to install on Windows.
+ureq = { version = "2", features = ["json"] }
