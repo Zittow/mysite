@@ -1,0 +1,9 @@
+{
+  "name": "mysite",
+  "compatibility_date": "2026-09-19",
+  "main": "./dist", // Tells Wrangler to treat the build folder as the entry point
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  }
+}

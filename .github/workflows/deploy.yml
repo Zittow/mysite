@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 5 * * *" # daily, so newly tagged projects appear on their own
+    - cron: "0 5 * * *" # Runs daily at 5:00 AM UTC
   workflow_dispatch:
 
 permissions:
@@ -14,20 +14,35 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
 
-      - uses: Swatinem/rust-cache@v2
+      - name: Cache Rust Dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          # Targets the cache specifically to your subfolder
+          workspaces: "mysite -> target"
 
-      - name: Generate the site
+      # Setup Node so Wrangler Action can execute safely
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate the site (Rust SSG)
         run: cargo run --release
+        working-directory: ./mysite
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Deploy the static output to Cloudflare
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: ./mysite
           command: deploy
